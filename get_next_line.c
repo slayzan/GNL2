@@ -6,7 +6,7 @@
 /*   By: humarque <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/08 12:29:50 by humarque          #+#    #+#             */
-/*   Updated: 2019/01/08 13:31:49 by humarque         ###   ########.fr       */
+/*   Updated: 2019/01/10 18:34:46 by humarque         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include "get_next_line.h"
@@ -47,12 +47,57 @@ t_struct *ft_findfd(t_struct **list, const int fd)
 	return (new);
 }
 
+int	ft_dup(char **line, char *lst)
+{
+	int i;
+
+	i = 0;
+//	printf("oui");
+	while(lst[i] != '\n')
+		i++;
+	*line = ft_strnew(i + 1);
+	*line = ft_strncpy(*line, lst, i);
+	return (i);
+}
+
+t_struct	*ft_delstr(int ret, t_struct *lst)
+{
+
+	if (ret < ft_strlen(lst->str))
+	{
+		lst->str = ft_strdup(lst->str + ret + 1);
+	}
+	else
+		ft_strclr(lst->str);
+	return(lst);
+}
+
+
 
 int		get_next_line(const int fd, char **line)
 {
 	static t_struct *list = NULL;
+	char buf[BUFF_SIZE + 1];
+	char *tofree;
+	int ret;
+	t_struct *lst;
 	
-	list = ft_findfd(&list, fd);
+	if(!(lst = ft_findfd(&list, fd)))
+		return(-1);
+	while ((ret = read(lst->fd, buf, BUFF_SIZE)))
+	{
+		buf[ret] = '\0';
+		tofree = lst->str;
+		lst->str = ft_strjoin(lst->str, (char const *)buf);
+		free(tofree);
+		if (ft_strchr(buf, '\n'))
+			break;
+	}
+	//printf("la");
+	if((ret < BUFF_SIZE) && (ft_strlen(lst->str) == 0))
+		return (0);
+	ret = ft_dup(line,lst->str);
+	lst = ft_delstr(ret, lst);
 	return (1);
 }
 
@@ -71,8 +116,9 @@ int main(int argc, char **argv)
 		close(fd);
 		return (-1);
 	}
-	res = get_next_line(fd, &line);
-	printf("%d\n", res);
-	res = get_next_line(fd2,&line);
-	printf("%d\n", res);
+	while((res = get_next_line(fd, &line) == 1))	
+	{
+		printf("%s", line);
+		printf("\n");
+	}
 }
