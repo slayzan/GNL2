@@ -6,12 +6,12 @@
 /*   By: humarque <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/08 12:29:50 by humarque          #+#    #+#             */
-/*   Updated: 2019/01/10 18:34:46 by humarque         ###   ########.fr       */
+/*   Updated: 2019/01/11 19:22:24 by humarque         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include "get_next_line.h"
 
-t_struct	*ft_lstcreate(const int fd, t_struct **list)
+static t_struct	*ft_lstcreate(const int fd)
 {
 	t_struct *new;
 	
@@ -27,27 +27,32 @@ t_struct	*ft_lstcreate(const int fd, t_struct **list)
 		free(new);
 		return (NULL);
 	}
-	new->next = *list;
+	new->next = NULL;
 	return (new);
 }
 
-t_struct *ft_findfd(t_struct **list, const int fd)
+static t_struct *ft_findfd(t_struct **list, const int fd)
 {
 	t_struct *new;
 	
 	new = *list;
 	while (new)
 	{
-		if (new->fd == fd)
+		if (new->fd == (unsigned int)fd)
 			return (new);
 		new = new->next;
 	}
-	if(!(new = ft_lstcreate(fd, list)))
+	if(!(new = ft_lstcreate(fd)))
+	{
+		free(new);
 		return (NULL);
+	}
+	new->next = *list;
+	*list = new;
 	return (new);
 }
 
-int	ft_dup(char **line, char *lst)
+static int	ft_dup(char **line, char *lst)
 {
 	int i;
 
@@ -60,12 +65,13 @@ int	ft_dup(char **line, char *lst)
 	return (i);
 }
 
-t_struct	*ft_delstr(int ret, t_struct *lst)
+static t_struct	*ft_delstr(int ret, t_struct *lst)
 {
 
-	if (ret < ft_strlen(lst->str))
+	if ((unsigned int)ret < ft_strlen(lst->str))
 	{
 		lst->str = ft_strdup(lst->str + ret + 1);
+		
 	}
 	else
 		ft_strclr(lst->str);
@@ -82,7 +88,7 @@ int		get_next_line(const int fd, char **line)
 	int ret;
 	t_struct *lst;
 	
-	if(!(lst = ft_findfd(&list, fd)))
+	if((!(lst = ft_findfd(&list, fd))) || fd < 0)
 		return(-1);
 	while ((ret = read(lst->fd, buf, BUFF_SIZE)))
 	{
@@ -93,15 +99,14 @@ int		get_next_line(const int fd, char **line)
 		if (ft_strchr(buf, '\n'))
 			break;
 	}
-	//printf("la");
-	if((ret < BUFF_SIZE) && (ft_strlen(lst->str) == 0))
+	if(ret < BUFF_SIZE && !(ft_strlen(lst->str)))
 		return (0);
 	ret = ft_dup(line,lst->str);
 	lst = ft_delstr(ret, lst);
 	return (1);
 }
 
-
+/*
 int main(int argc, char **argv)
 {
 	int fd;
@@ -109,6 +114,7 @@ int main(int argc, char **argv)
 	int res;
 	char *line;
 
+	argc = 0;
 	fd = open(argv[1], O_RDONLY);
 	fd2 = open(argv[2], O_RDONLY);
 	if ( fd == -1)
@@ -121,4 +127,4 @@ int main(int argc, char **argv)
 		printf("%s", line);
 		printf("\n");
 	}
-}
+}*/

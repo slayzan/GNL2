@@ -1,32 +1,36 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.h                                    :+:      :+:    :+:   */
+/*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: humarque <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2019/01/08 12:30:05 by humarque          #+#    #+#             */
-/*   Updated: 2019/01/11 18:37:45 by humarque         ###   ########.fr       */
+/*   Created: 2019/01/11 18:38:49 by humarque          #+#    #+#             */
+/*   Updated: 2019/01/11 18:43:29 by humarque         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef GET_NEXT_LINE_H
-#define GET_NEXT_LINE_H
-#define BUFF_SIZE 32
-# include <unistd.h>
-# include <stdio.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-# include "libft/libft.h"
+#include "get_next_line.h"
 
-typedef    struct            s_struct
+
+int main(int argc, char **argv)
 {
-	unsigned int fd;
-	char *str;
-	struct s_struct *next;
-}                        t_struct;
+	int fd;
+	int fd2;
+	int res;
+	char *line;
 
-int        get_next_line(int fd, char **line);
-
-#endif
+	argc = 0;
+	fd = open(argv[1], O_RDONLY);
+	fd2 = open(argv[2], O_RDONLY);
+	if ( fd == -1)
+	{
+		close(fd);
+		return (-1);
+	}
+	while((res = get_next_line(fd, &line) == 1))
+	{
+		printf("%s", line);
+		printf("\n");
+	}
+}
