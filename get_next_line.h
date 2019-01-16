@@ -6,13 +6,13 @@
 /*   By: humarque <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/08 12:30:05 by humarque          #+#    #+#             */
-/*   Updated: 2019/01/11 18:37:45 by humarque         ###   ########.fr       */
+/*   Updated: 2019/01/16 16:33:17 by humarque         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef GET_NEXT_LINE_H
 #define GET_NEXT_LINE_H
-#define BUFF_SIZE 32
+#define BUFF_SIZE 6
 # include <unistd.h>
 # include <stdio.h>
 #include <sys/types.h>
