@@ -6,7 +6,7 @@
 /*   By: humarque <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/08 12:29:50 by humarque          #+#    #+#             */
-/*   Updated: 2019/01/11 19:22:24 by humarque         ###   ########.fr       */
+/*   Updated: 2019/01/16 14:33:01 by humarque         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include "get_next_line.h"
@@ -58,7 +58,7 @@ static int	ft_dup(char **line, char *lst)
 
 	i = 0;
 //	printf("oui");
-	while(lst[i] != '\n')
+	while(lst[i] != '\n' && lst[i])
 		i++;
 	*line = ft_strnew(i + 1);
 	*line = ft_strncpy(*line, lst, i);
@@ -68,9 +68,12 @@ static int	ft_dup(char **line, char *lst)
 static t_struct	*ft_delstr(int ret, t_struct *lst)
 {
 
+	char *tofree;
 	if ((unsigned int)ret < ft_strlen(lst->str))
 	{
+		tofree = lst->str;
 		lst->str = ft_strdup(lst->str + ret + 1);
+		free(tofree);
 		
 	}
 	else
@@ -88,8 +91,8 @@ int		get_next_line(const int fd, char **line)
 	int ret;
 	t_struct *lst;
 	
-	if((!(lst = ft_findfd(&list, fd))) || fd < 0)
-		return(-1);
+	if ((!(lst = ft_findfd(&list, fd))) || fd == -1 || read(lst->fd,buf,BUFF_SIZE < 0))
+		return (-1);
 	while ((ret = read(lst->fd, buf, BUFF_SIZE)))
 	{
 		buf[ret] = '\0';
@@ -99,7 +102,7 @@ int		get_next_line(const int fd, char **line)
 		if (ft_strchr(buf, '\n'))
 			break;
 	}
-	if(ret < BUFF_SIZE && !(ft_strlen(lst->str)))
+	if (ret <= BUFF_SIZE && !(ft_strlen(lst->str)))
 		return (0);
 	ret = ft_dup(line,lst->str);
 	lst = ft_delstr(ret, lst);
